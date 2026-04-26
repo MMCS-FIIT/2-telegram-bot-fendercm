@@ -13,7 +13,7 @@ using static System.Formats.Asn1.AsnWriter;
 public class TelegramBot
 {
     // Токен TG-бота. Можно получить у @BotFather
-    private const string BotToken =
+    private const string BotToken = "8672756308:AAHtgCPHNaSkR2R9OJ_7Xwc1bT93ck0Y9Sg";
     private static readonly Dictionary<long, int> UserTasks = new();
     private static readonly Dictionary<long, int> UserScores = new(); // <--- добавлено это поле
     private const string LogFilePath = "bot_logs.txt";
@@ -115,12 +115,22 @@ public class TelegramBot
 
                     UserScores[chatId] = UserScores.GetValueOrDefault(chatId, 0) + 1;
                     UserTasks.Remove(chatId);
-
                     await botClient.SendTextMessageAsync(chatId, "Бинго! Красавчик. Ещё один пример?", cancellationToken: cancellationToken);
+                    var sentSticker = await botClient.SendStickerAsync(
+                        chatId: chatId,
+                        sticker: new InputFileId("CAACAgIAAxkBAAEXAetp7gXJDEGgRElSxf3pna6j60YEqAACh5AAAiEhSEpb7MO_f0WlwDsE"),
+                        cancellationToken: cancellationToken
+                    );
+
                 }
                 else
                 {
                     await botClient.SendTextMessageAsync(chatId, "Мимо! Попробуй посчитать ещё раз или нажми 'Новая задача'.", cancellationToken: cancellationToken);
+                    var sentSticker = await botClient.SendStickerAsync(
+                        chatId: chatId,
+                        sticker: new InputFileId("CAACAgIAAxkBAAEXAelp7gQ7BAsVWmZ8VHa985_5NbZwHgACqIsAAvTO2Emg5E3UvBvOdTsE"),
+                        cancellationToken: cancellationToken
+                    );
                 }
             }
             else
