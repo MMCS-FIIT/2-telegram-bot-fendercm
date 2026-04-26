@@ -13,7 +13,7 @@ using static System.Formats.Asn1.AsnWriter;
 public class TelegramBot
 {
     // Токен TG-бота. Можно получить у @BotFather
-    private const string BotToken = ""; 
+    private const string BotToken = "8672756308:AAHtgCPHNaSkR2R9OJ_7Xwc1bT93ck0Y9Sg"; 
     private static readonly Dictionary<long, int> UserTasks = new();
     private static readonly Dictionary<long, int> UserScores = new(); // <--- добавлено это поле
     private const string LogFilePath = "bot_logs.txt";
@@ -135,7 +135,7 @@ public class TelegramBot
             UserTasks[chatId] = problem.A;
             await botClient.SendTextMessageAsync(chatId, problem.Q);
         }
-        if (input == "назад в меню" || input == "назад")
+        else if (input == "назад в меню" || input == "назад")
         {
             UserTasks.Remove(chatId);
             await botClient.SendTextMessageAsync(
