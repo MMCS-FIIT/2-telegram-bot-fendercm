@@ -13,7 +13,7 @@ using static System.Formats.Asn1.AsnWriter;
 public class TelegramBot
 {
     // Токен TG-бота. Можно получить у @BotFather
-    private const string BotToken = "8672756308:AAHtgCPHNaSkR2R9OJ_7Xwc1bT93ck0Y9Sg"; 
+    private const string BotToken = ""; 
     private static readonly Dictionary<long, int> UserTasks = new();
     private static readonly Dictionary<long, int> UserScores = new(); // <--- добавлено это поле
     private const string LogFilePath = "bot_logs.txt";
