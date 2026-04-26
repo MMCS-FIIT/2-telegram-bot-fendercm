@@ -12,7 +12,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 public class TelegramBot
 {
     // Токен TG-бота. Можно получить у @BotFather
-    private const string BotToken = "////";
+    private const string BotToken = 
     private static readonly Dictionary<long, int> UserTasks = new();
     private const string LogFilePath = "bot_logs.txt";
     /// <summary>
@@ -77,9 +77,15 @@ public class TelegramBot
         await System.IO.File.AppendAllTextAsync(LogFilePath, $"{DateTime.Now}: {chatId} ({userName}) -> {messageText}\n", cancellationToken);
         // Печатаем на консоль факт получения сообщенияS
         Console.WriteLine($"Получено сообщение в чате {chatId}: '{messageText}'");
-
+        var mainMenu = new ReplyKeyboardMarkup(new[]
+        {
+            new KeyboardButton[] { " Новая задача", "Мой счёт" },
+            new KeyboardButton[] { "Помощь" }
+        })
+        { ResizeKeyboard = true };
         // TODO: Обработка пришедших сообщений
-        
+        string input = messageText.ToLower().Trim();
+        string[] startSynonyms = { "да", "ок", "давай", "го", "старт", "/start", "новая задача" };
         // Отправляем обратно то же сообщение, что и получили
         Message sentMessage = await botClient.SendTextMessageAsync(
             chatId: chatId,
