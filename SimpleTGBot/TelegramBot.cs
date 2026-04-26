@@ -13,7 +13,7 @@ using static System.Formats.Asn1.AsnWriter;
 public class TelegramBot
 {
     // Токен TG-бота. Можно получить у @BotFather
-    private const string BotToken = "8672756308:AAHtgCPHNaSkR2R9OJ_7Xwc1bT93ck0Y9Sg";
+    private const string BotToken = 
     private static readonly Dictionary<long, int> UserTasks = new();
     private static readonly Dictionary<long, int> UserScores = new(); // <--- добавлено это поле
     private const string LogFilePath = "bot_logs.txt";
@@ -90,17 +90,32 @@ public class TelegramBot
         string[] startSynonyms = { "да", "ок", "давай", "го", "старт", "/start", "новая задача" };
         if (startSynonyms.Contains(input))
         {
-            var taskMenu = new ReplyKeyboardMarkup(new[]
-        {
-            new KeyboardButton[] { "Матирицы", "Комбинаторика", "Умножение" },
-            })
+            var taskMenu = new ReplyKeyboardMarkup(new[]{
+            new KeyboardButton[] { "Матрицы", "Комбинаторика", "Умножение" }})
             { ResizeKeyboard = true };
             await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Отлично! Выбери тему, которая тебя интересует:",
-                        replyMarkup: taskMenu, 
-                        cancellationToken: cancellationToken);
-
+                        replyMarkup: taskMenu,
+                        cancellationToken: cancellationToken); }
+        else if (input == "умножение")
+        {
+            var rand = new Random();
+            int a = rand.Next(10, 20);
+            int b = rand.Next(2, 10);
+            UserTasks[chatId] = a * b;
+            await botClient.SendTextMessageAsync(chatId, $"Сколько будет {a} * {b}?");
+        }
+        else if (input == "матрицы")
+        {
+            // Пример с определителем
+            UserTasks[chatId] = 2;
+            await botClient.SendTextMessageAsync(chatId, "Найди определитель матрицы:\n| 3  4 |\n| 1  2 |");
+        }
+        else if (input == "комбинаторика")
+        {
+            UserTasks[chatId] = 24;
+            await botClient.SendTextMessageAsync(chatId, "Сколькими способами можно расставить 4 книги на полке?");
         }
         else if (input == "мой счёт")
         {
