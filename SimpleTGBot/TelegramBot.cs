@@ -8,12 +8,14 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using static System.Formats.Asn1.AsnWriter;
 
 public class TelegramBot
 {
     // Токен TG-бота. Можно получить у @BotFather
-    private const string BotToken = 
+    private const string BotToken =
     private static readonly Dictionary<long, int> UserTasks = new();
+    private static readonly Dictionary<long, int> UserScores = new(); // <--- добавлено это поле
     private const string LogFilePath = "bot_logs.txt";
     /// <summary>
     /// Инициализирует и обеспечивает работу бота до нажатия клавиши Esc
@@ -86,12 +88,52 @@ public class TelegramBot
         // TODO: Обработка пришедших сообщений
         string input = messageText.ToLower().Trim();
         string[] startSynonyms = { "да", "ок", "давай", "го", "старт", "/start", "новая задача" };
-        // Отправляем обратно то же сообщение, что и получили
-        Message sentMessage = await botClient.SendTextMessageAsync(
-            chatId: chatId,
-            text: "Ты написал:\n" + messageText,
-            cancellationToken: cancellationToken);
+        if (startSynonyms.Contains(input))
+        {
+            var rand = new Random();
+            int a = rand.Next(2, 12);
+            int b = rand.Next(2, 12);
+            UserTasks[chatId] = a * b;
+
+            await botClient.SendTextMessageAsync(chatId, $"Реши пример: {a} × {b} = ?", replyMarkup: mainMenu, cancellationToken: cancellationToken);
+        }
+        else if (input == "мой счёт")
+        {
+            int score = UserScores.GetValueOrDefault(chatId, 0);
+            await botClient.SendTextMessageAsync(chatId, $"Твой результат: {score} правильных ответов! 🔥", cancellationToken: cancellationToken);
+        }
+        else if (input == "помощь")
+        {
+            await botClient.SendTextMessageAsync(chatId, $"Для получения задачи - нажми {"Новая задача"}, для того чтобы узнать свой счет - нажми {"Мой счет"}. Для ответа бот принимает только числа ", cancellationToken: cancellationToken);
+        }
+        else if (int.TryParse(messageText, out int userGuess)) // Обработка неадекватного ввода 
+        {
+            if (UserTasks.TryGetValue(chatId, out int correctAnswer))
+            {
+                if (userGuess == correctAnswer)
+                {
+
+                    UserScores[chatId] = UserScores.GetValueOrDefault(chatId, 0) + 1;
+                    UserTasks.Remove(chatId);
+
+                    await botClient.SendTextMessageAsync(chatId, "Бинго! Красавчик. Ещё один пример?", cancellationToken: cancellationToken);
+                }
+                else
+                {
+                    await botClient.SendTextMessageAsync(chatId, "Мимо! Попробуй посчитать ещё раз или нажми 'Новая задача'.", cancellationToken: cancellationToken);
+                }
+            }
+            else
+            {
+                await botClient.SendTextMessageAsync(chatId, "Чтобы начать, нажми на кнопку 'Новая задача'.", cancellationToken: cancellationToken);
+            }
+        }
+        else
+        {
+            await botClient.SendTextMessageAsync(chatId, "Я понимаю только числа или кнопки внизу! 😊", replyMarkup: mainMenu, cancellationToken: cancellationToken);
+        }
     }
+    
 
     /// <summary>
     /// Обработчик исключений, возникших при работе бота
