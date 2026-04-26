@@ -13,7 +13,7 @@ using static System.Formats.Asn1.AsnWriter;
 public class TelegramBot
 {
     // Токен TG-бота. Можно получить у @BotFather
-    private const string BotToken = 
+    private const string BotToken = "8672756308:AAHtgCPHNaSkR2R9OJ_7Xwc1bT93ck0Y9Sg"; 
     private static readonly Dictionary<long, int> UserTasks = new();
     private static readonly Dictionary<long, int> UserScores = new(); // <--- добавлено это поле
     private const string LogFilePath = "bot_logs.txt";
@@ -91,7 +91,8 @@ public class TelegramBot
         if (startSynonyms.Contains(input))
         {
             var taskMenu = new ReplyKeyboardMarkup(new[]{
-            new KeyboardButton[] { "Матрицы", "Комбинаторика", "Умножение" }})
+            new KeyboardButton[] { "Матрицы", "Комбинаторика", "Умножение" },
+            new KeyboardButton[] { " Назад в меню" }})
             { ResizeKeyboard = true };
             await botClient.SendTextMessageAsync(
                         chatId: chatId,
@@ -108,14 +109,41 @@ public class TelegramBot
         }
         else if (input == "матрицы")
         {
-            // Пример с определителем
-            UserTasks[chatId] = 2;
-            await botClient.SendTextMessageAsync(chatId, "Найди определитель матрицы:\n| 3  4 |\n| 1  2 |");
+            var matrixProblems = new[]
+            {
+                new { Q = "Определитель |2 1||4 3|", A = 2 },
+                new { Q = "След матрицы |5 0||0 5|", A = 10 },
+                new { Q = "Элемент (1,2) в |1 9||3 4|", A = 9 }
+            };
+
+            var random = new Random();
+            var problem = matrixProblems[random.Next(matrixProblems.Length)];
+
+            UserTasks[chatId] = problem.A;
+            await botClient.SendTextMessageAsync(chatId, problem.Q);
         }
         else if (input == "комбинаторика")
         {
-            UserTasks[chatId] = 24;
-            await botClient.SendTextMessageAsync(chatId, "Сколькими способами можно расставить 4 книги на полке?");
+            var combinatoricsProblems = new[]
+            {
+                new { Q = "Сколько различных слов можно составить из букв слова 'КОТ'?", A = 6 },
+                new { Q = "Сколько способов выбрать 2 предмета из 5?", A = 10 },
+                new { Q = "Сколько различных перестановок букв в слове 'МАТЕМАТИКА'?", A = 39916800 }
+            };
+            var random = new Random();
+            var problem = combinatoricsProblems[random.Next(combinatoricsProblems.Length)];
+            UserTasks[chatId] = problem.A;
+            await botClient.SendTextMessageAsync(chatId, problem.Q);
+        }
+        if (input == "назад в меню" || input == "назад")
+        {
+            UserTasks.Remove(chatId);
+            await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: "Возвращаемся в главное меню. Чем займемся?",
+                replyMarkup: mainMenu, 
+                cancellationToken: cancellationToken
+            );
         }
         else if (input == "мой счёт")
         {
