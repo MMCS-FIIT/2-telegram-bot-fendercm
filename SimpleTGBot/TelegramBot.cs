@@ -1,17 +1,20 @@
 ﻿using System.Reflection.Metadata.Ecma335;
 
 namespace SimpleTGBot;
+using System.IO;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 public class TelegramBot
 {
     // Токен TG-бота. Можно получить у @BotFather
-    private const string BotToken = "ВАШ_ТОКЕН_ИДЕНТИФИКАЦИИ_БОТА";
-    
+    private const string BotToken = "////";
+    private static readonly Dictionary<long, int> UserTasks = new();
+    private const string LogFilePath = "bot_logs.txt";
     /// <summary>
     /// Инициализирует и обеспечивает работу бота до нажатия клавиши Esc
     /// </summary>
@@ -63,15 +66,6 @@ public class TelegramBot
     {
         // Работаем только с сообщениями. Остальные события игнорируем
         var message = update.Message;
-        if (message is null)
-        {
-            return;
-        }
-        // Будем обрабатывать только текстовые сообщения.
-        // При желании можно обрабатывать стикеры, фото, голосовые и т. д.
-        //
-        // Обратите внимание на использованную конструкцию. Она эквивалентна проверке на null, приведённой выше.
-        // Подробнее об этом синтаксисе: https://medium.com/@mattkenefick/snippets-in-c-more-ways-to-check-for-null-4eb735594c09
         if (message.Text is not { } messageText)
         {
             return;
@@ -79,8 +73,9 @@ public class TelegramBot
 
         // Получаем ID чата, в которое пришло сообщение. Полезно, чтобы отличать пользователей друг от друга.
         var chatId = message.Chat.Id;
-        
-        // Печатаем на консоль факт получения сообщения
+        var userName = message.From?.FirstName ?? "User";
+        await System.IO.File.AppendAllTextAsync(LogFilePath, $"{DateTime.Now}: {chatId} ({userName}) -> {messageText}\n", cancellationToken);
+        // Печатаем на консоль факт получения сообщенияS
         Console.WriteLine($"Получено сообщение в чате {chatId}: '{messageText}'");
 
         // TODO: Обработка пришедших сообщений
