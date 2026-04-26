@@ -90,12 +90,17 @@ public class TelegramBot
         string[] startSynonyms = { "да", "ок", "давай", "го", "старт", "/start", "новая задача" };
         if (startSynonyms.Contains(input))
         {
-            var rand = new Random();
-            int a = rand.Next(2, 12);
-            int b = rand.Next(2, 12);
-            UserTasks[chatId] = a * b;
+            var taskMenu = new ReplyKeyboardMarkup(new[]
+        {
+            new KeyboardButton[] { "Матирицы", "Комбинаторика", "Умножение" },
+            })
+            { ResizeKeyboard = true };
+            await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Отлично! Выбери тему, которая тебя интересует:",
+                        replyMarkup: taskMenu, 
+                        cancellationToken: cancellationToken);
 
-            await botClient.SendTextMessageAsync(chatId, $"Реши пример: {a} × {b} = ?", replyMarkup: mainMenu, cancellationToken: cancellationToken);
         }
         else if (input == "мой счёт")
         {
